@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/afdesk/trivy-cli/pkg/commands/flags"
 	"github.com/afdesk/trivy-cli/pkg/commands/option"
-	"github.com/afdesk/trivy-cli/pkg/commands/utils"
 	"github.com/aquasecurity/trivy-db/pkg/metadata"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"io"
 )
 
@@ -39,7 +40,8 @@ type VersionInfo struct {
 
 func getVersionTemplate() string {
 	b := bytes.Buffer{}
-	showVersion(utils.DefaultCacheDir(), "table", "{{ .Version }}", &b)
+	cacheDir := viper.GetString(flags.FlagCacheDir)
+	showVersion(cacheDir, "table", "{{ .Version }}", &b)
 	return b.String()
 }
 

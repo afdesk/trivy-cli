@@ -89,41 +89,20 @@ var versionCommand = &cobra.Command{
 	RunE:  versionRun,
 }
 
-func Execute(version string) *cobra.Command {
-	rootCmd := &cobra.Command{
-		Use:     "trivy [global flags] command [flags] target",
-		Version: version,
-		Short:   "A simple and comprehensive vulnerability scanner for containers",
-		CompletionOptions: cobra.CompletionOptions{
-			DisableDefaultCmd: true,
-		},
-	}
-	rootCmd = flags.AddGlobalFlags(rootCmd)
+var rootCmd = &cobra.Command{
+	Use:   "trivy [global flags] command [flags] target",
+	Short: "A simple and comprehensive vulnerability scanner for containers",
+	CompletionOptions: cobra.CompletionOptions{
+		DisableDefaultCmd: true,
+	},
+}
 
-	rootCmd.SetVersionTemplate(getVersionTemplate())
-
-	rootCmd.AddCommand(
-		imageCommand,
-		fsCommand,
-		rootfsCommand,
-		repoCommand,
-		serverCommand,
-		clientCommand,
-		configCommand,
-		pluginCommand,
-		kubernetesCommand,
-		sbomCommand,
-		versionCommand,
-	)
-
+func NewApp(version string) *cobra.Command {
+	rootCmd.Version = version
 	return rootCmd
 }
 
 func init() {
-	viper.SetEnvPrefix("trivy")
-	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	viper.AutomaticEnv()
-
 	// init flags for `image` subcommand
 	imageCommand.Flags().SetNormalizeFunc(flags.NormalizeFlags)
 
@@ -202,4 +181,25 @@ func init() {
 
 	// init flags for version subcommand
 	versionCommand = flags.AddFormatFlag(versionCommand)
+
+	// init rootCmd
+	rootCmd = flags.AddGlobalFlags(rootCmd)
+	rootCmd.AddCommand(
+		imageCommand,
+		fsCommand,
+		rootfsCommand,
+		repoCommand,
+		serverCommand,
+		clientCommand,
+		configCommand,
+		pluginCommand,
+		kubernetesCommand,
+		sbomCommand,
+		versionCommand,
+	)
+	defer rootCmd.SetVersionTemplate(getVersionTemplate())
+
+	viper.SetEnvPrefix("trivy")
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	viper.AutomaticEnv()
 }

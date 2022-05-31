@@ -11,7 +11,7 @@ var (
 )
 
 func main() {
-	app := commands.Execute(version)
+	app := commands.NewApp(version)
 	if err := app.Execute(); err != nil {
 		log.Fatal(err)
 	}
