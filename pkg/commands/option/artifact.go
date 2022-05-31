@@ -3,6 +3,7 @@ package option
 import (
 	"github.com/afdesk/trivy-cli/pkg/commands/flags"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"golang.org/x/xerrors"
 	"time"
 
@@ -25,7 +26,7 @@ type ArtifactOption struct {
 
 // NewArtifactOption is the factory method to return artifact option
 func NewArtifactOption(c *cobra.Command) (ArtifactOption, error) {
-	input, _ := c.Flags().GetString(flags.FlagInput)
+	input := viper.GetString(flags.FlagInput)
 
 	target := ""
 	if len(c.Flags().Args()) > 0 {
@@ -36,9 +37,10 @@ func NewArtifactOption(c *cobra.Command) (ArtifactOption, error) {
 		return ArtifactOption{}, xerrors.New(`trivy requires at least 1 argument or --input option`)
 	}
 
-	timeout, _ := c.Flags().GetDuration(flags.FlagTimeout)
-	clearCache, _ := c.Flags().GetBool(flags.FlagClearCache)
-	skipFiles, _ := c.Flags().GetStringArray(flags.FlagSkipFiles)
+	timeout := viper.GetDuration(flags.FlagTimeout)
+	clearCache := viper.GetBool(flags.FlagClearCache)
+	skipFiles := viper.GetStringSlice(flags.FlagSkipFiles)
+	//skipFiles, _ := c.Flags().GetStringSlice(flags.FlagSkipFiles)
 	skipDirs, _ := c.Flags().GetStringArray(flags.FlagSkipDirs)
 	offline, _ := c.Flags().GetBool(flags.FlagOfflineScan)
 

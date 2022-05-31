@@ -3,6 +3,7 @@ package flags
 import (
 	"fmt"
 	"github.com/afdesk/trivy-cli/pkg/commands/utils"
+	"github.com/spf13/viper"
 	"strings"
 	"time"
 
@@ -16,6 +17,9 @@ import (
 )
 
 const (
+	FlagDebug              = "debug"
+	FlagQuiet              = "quiet"
+	FlagCacheDir           = "cache-dir"
 	FlagFormat             = "format"
 	FlagInput              = "input"
 	FlagTemplate           = "template"
@@ -85,9 +89,13 @@ func NormalizeFlags(f *pflag.FlagSet, name string) pflag.NormalizedName {
 }
 
 func AddGlobalFlags(cmd *cobra.Command) *cobra.Command {
-	cmd.PersistentFlags().BoolP("debug", "d", false, "debug mode")
-	cmd.PersistentFlags().BoolP("quiet", "q", false, "suppress progress bar and log output (default: false) [$TRIVY_QUIET]")
-	cmd.PersistentFlags().StringP("cache-dir", "", utils.DefaultCacheDir(), "cache directory [$TRIVY_CACHE_DIR]")
+	cmd.PersistentFlags().BoolP(FlagDebug, "d", false, "debug mode [$TRIVY_DEBUG]")
+	cmd.PersistentFlags().BoolP(FlagQuiet, "q", false, "suppress progress bar and log output (default: false) [$TRIVY_QUIET]")
+	cmd.PersistentFlags().String(FlagCacheDir, utils.DefaultCacheDir(), "cache directory [$TRIVY_CACHE_DIR]")
+
+	viper.BindPFlag(FlagDebug, cmd.PersistentFlags().Lookup(FlagDebug))
+	viper.BindPFlag(FlagQuiet, cmd.PersistentFlags().Lookup(FlagQuiet))
+	viper.BindPFlag(FlagCacheDir, cmd.PersistentFlags().Lookup(FlagCacheDir))
 	return cmd
 }
 
@@ -257,7 +265,7 @@ func AddListAllPkgsFlag(cmd *cobra.Command) *cobra.Command {
 }
 
 func AddSkipFilesFlag(cmd *cobra.Command) *cobra.Command {
-	cmd.Flags().StringArray(FlagSkipFiles, []string{}, "specify the file paths to skip traversal")
+	cmd.Flags().StringSlice(FlagSkipFiles, []string{}, "specify the file paths to skip traversal")
 	return cmd
 }
 

@@ -9,7 +9,7 @@ import (
 func FsRun(cmd *cobra.Command, args []string) error {
 	options, err := NewOption(cmd)
 	if err != nil {
-		return xerrors.Errorf("option parsing error: %w", err)
+		return xerrors.Errorf("option parsing error: %v", err)
 	}
 
 	// Show DEMO information about command

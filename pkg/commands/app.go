@@ -4,6 +4,8 @@ import (
 	"github.com/afdesk/trivy-cli/pkg/commands/artifact"
 	"github.com/afdesk/trivy-cli/pkg/commands/flags"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"strings"
 )
 
 var imageCommand = &cobra.Command{
@@ -122,6 +124,10 @@ func Execute(version string) *cobra.Command {
 }
 
 func init() {
+	viper.SetEnvPrefix("trivy")
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	viper.AutomaticEnv()
+
 	// init flags for `image` subcommand
 	imageCommand.Flags().SetNormalizeFunc(flags.NormalizeFlags)
 
@@ -159,6 +165,8 @@ func init() {
 
 	imageCommand = flags.AddClientServerFlags(imageCommand)
 
+	viper.BindPFlags(imageCommand.Flags())
+
 	// init flags for `filesystem` subcommand
 	fsCommand = flags.AddTemplateFlag(fsCommand)
 	fsCommand = flags.AddFormatFlag(fsCommand)
@@ -194,6 +202,8 @@ func init() {
 	fsCommand = flags.AddPolicyNamespacesFlag(fsCommand)
 
 	fsCommand = flags.AddClientServerFlags(fsCommand)
+
+	//viper.BindPFlags(fsCommand.Flags())
 
 	// init flags for `rootfs` subcommand
 	rootfsCommand = flags.AddFormatFlag(rootfsCommand)

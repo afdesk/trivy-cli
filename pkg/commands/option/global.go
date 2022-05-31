@@ -1,6 +1,10 @@
 package option
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/afdesk/trivy-cli/pkg/commands/flags"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+)
 
 // GlobalOption holds the global options for trivy
 type GlobalOption struct {
@@ -12,20 +16,9 @@ type GlobalOption struct {
 
 // NewGlobalOption is the factory method to return GlobalOption
 func NewGlobalOption(cmd *cobra.Command) (GlobalOption, error) {
-	quiet, err := cmd.Flags().GetBool("quiet")
-	if err != nil {
-		return GlobalOption{}, err
-	}
-
-	debug, err := cmd.Flags().GetBool("debug")
-	if err != nil {
-		return GlobalOption{}, err
-	}
-
-	cacheDir, err := cmd.Flags().GetString("cache-dir")
-	if err != nil {
-		return GlobalOption{}, err
-	}
+	debug := viper.GetBool(flags.FlagDebug)
+	quiet := viper.GetBool(flags.FlagQuiet)
+	cacheDir := viper.GetString(flags.FlagCacheDir)
 
 	return GlobalOption{
 		AppVersion: cmd.Version,
