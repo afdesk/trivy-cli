@@ -270,7 +270,7 @@ func AddSkipFilesFlag(cmd *cobra.Command) *cobra.Command {
 }
 
 func AddSkipDirsFlag(cmd *cobra.Command) *cobra.Command {
-	cmd.Flags().StringArray(FlagSkipDirs, []string{}, "specify the directories where the traversal is skipped")
+	cmd.Flags().StringSlice(FlagSkipDirs, []string{}, "specify the directories where the traversal is skipped")
 	return cmd
 }
 

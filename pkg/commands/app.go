@@ -8,33 +8,29 @@ import (
 	"strings"
 )
 
-var imageCommand = &cobra.Command{
-	Use:     "image [flags] target",
-	Aliases: []string{"i"},
-	Short:   "scan an image",
-	RunE:    artifact.ImageRun,
+func buildCommand(use string, aliases []string, short string,
+	runE func(cmd *cobra.Command, args []string) error) *cobra.Command {
+	return &cobra.Command{
+		Use:     use,
+		Aliases: aliases,
+		Short:   short,
+		PreRun: func(cmd *cobra.Command, args []string) {
+			viper.BindPFlags(cmd.Flags())
+		},
+		RunE:          runE,
+		SilenceErrors: true,
+	}
 }
 
-var fsCommand = &cobra.Command{
-	Use:           "filesystem",
-	Aliases:       []string{"fs"},
-	Short:         "scan local filesystem for language-specific dependencies and config files",
-	SilenceErrors: true,
-	RunE:          artifact.FsRun,
-}
+var imageCommand = buildCommand("image [flags] target", []string{"i"}, "scan an image", artifact.ImageRun)
 
-var rootfsCommand = &cobra.Command{
-	Use:   "rootfs",
-	Short: "scan rootfs",
-	RunE:  artifact.RootfsRun,
-}
+var fsCommand = buildCommand("filesystem [flags] path", []string{"fs"},
+	"scan local filesystem for language-specific dependencies and config files", artifact.FsRun)
 
-var repoCommand = &cobra.Command{
-	Use:     "repository",
-	Aliases: []string{"repo"},
-	Short:   "scan remote repository",
-	RunE:    artifact.RepositoryRun,
-}
+var rootfsCommand = buildCommand("rootfs [flags] dir", nil, "scan rootfs", artifact.RootfsRun)
+
+var repoCommand = buildCommand("repository [flags] repo_url", []string{"repo"},
+	"scan remote repository", artifact.RepositoryRun)
 
 var serverCommand = &cobra.Command{
 	Use:     "server",
@@ -165,8 +161,6 @@ func init() {
 
 	imageCommand = flags.AddClientServerFlags(imageCommand)
 
-	viper.BindPFlags(imageCommand.Flags())
-
 	// init flags for `filesystem` subcommand
 	fsCommand = flags.AddTemplateFlag(fsCommand)
 	fsCommand = flags.AddFormatFlag(fsCommand)
@@ -202,8 +196,6 @@ func init() {
 	fsCommand = flags.AddPolicyNamespacesFlag(fsCommand)
 
 	fsCommand = flags.AddClientServerFlags(fsCommand)
-
-	//viper.BindPFlags(fsCommand.Flags())
 
 	// init flags for `rootfs` subcommand
 	rootfsCommand = flags.AddFormatFlag(rootfsCommand)

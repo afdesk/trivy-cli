@@ -40,9 +40,8 @@ func NewArtifactOption(c *cobra.Command) (ArtifactOption, error) {
 	timeout := viper.GetDuration(flags.FlagTimeout)
 	clearCache := viper.GetBool(flags.FlagClearCache)
 	skipFiles := viper.GetStringSlice(flags.FlagSkipFiles)
-	//skipFiles, _ := c.Flags().GetStringSlice(flags.FlagSkipFiles)
-	skipDirs, _ := c.Flags().GetStringArray(flags.FlagSkipDirs)
-	offline, _ := c.Flags().GetBool(flags.FlagOfflineScan)
+	skipDirs := viper.GetStringSlice(flags.FlagSkipDirs)
+	offline := viper.GetBool(flags.FlagOfflineScan)
 
 	return ArtifactOption{
 		Input:       input,
