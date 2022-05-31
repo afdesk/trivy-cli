@@ -14,6 +14,6 @@ func ImageRun(cmd *cobra.Command, args []string) error {
 
 	// Show DEMO information about IMAGE command
 	log.Println("[IMAGE] running Image subcommand")
-	log.Printf("[IMAGE] options: %+v", options)
+	log.Printf("[IMAGE] options: %#v", options)
 	return nil
 }

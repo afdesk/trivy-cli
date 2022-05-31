@@ -1,6 +1,7 @@
 package option
 
 import (
+	"github.com/afdesk/trivy-cli/pkg/commands/flags"
 	"github.com/spf13/cobra"
 	"golang.org/x/xerrors"
 	"time"
@@ -24,10 +25,8 @@ type ArtifactOption struct {
 
 // NewArtifactOption is the factory method to return artifact option
 func NewArtifactOption(c *cobra.Command) (ArtifactOption, error) {
-	input, err := c.Flags().GetString("input")
-	if err != nil {
-		return ArtifactOption{}, err
-	}
+	input, _ := c.Flags().GetString(flags.FlagInput)
+
 	target := ""
 	if len(c.Flags().Args()) > 0 {
 		target = c.Flags().Args()[0]
@@ -37,16 +36,20 @@ func NewArtifactOption(c *cobra.Command) (ArtifactOption, error) {
 		return ArtifactOption{}, xerrors.New(`trivy requires at least 1 argument or --input option`)
 	}
 
+	timeout, _ := c.Flags().GetDuration(flags.FlagTimeout)
+	clearCache, _ := c.Flags().GetBool(flags.FlagClearCache)
+	skipFiles, _ := c.Flags().GetStringArray(flags.FlagSkipFiles)
+	skipDirs, _ := c.Flags().GetStringArray(flags.FlagSkipDirs)
+	offline, _ := c.Flags().GetBool(flags.FlagOfflineScan)
+
 	return ArtifactOption{
-		Input:  input,
-		Target: target,
-		/*
-			Timeout:     c.Duration("timeout"),
-			ClearCache:  c.Bool("clear-cache"),
-			SkipFiles:   c.StringSlice("skip-files"),
-			SkipDirs:    c.StringSlice("skip-dirs"),
-			OfflineScan: c.Bool("offline-scan"),
-		*/
+		Input:       input,
+		Target:      target,
+		Timeout:     timeout,
+		ClearCache:  clearCache,
+		SkipFiles:   skipFiles,
+		SkipDirs:    skipDirs,
+		OfflineScan: offline,
 	}, nil
 }
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/afdesk/trivy-cli/pkg/commands/option"
+	"github.com/afdesk/trivy-cli/pkg/commands/utils"
 	"github.com/aquasecurity/trivy-db/pkg/metadata"
 	"github.com/spf13/cobra"
 	"io"
@@ -38,7 +39,7 @@ type VersionInfo struct {
 
 func getVersionTemplate() string {
 	b := bytes.Buffer{}
-	showVersion(DefaultCacheDir(), "table", "{{ .Version }}", &b)
+	showVersion(utils.DefaultCacheDir(), "table", "{{ .Version }}", &b)
 	return b.String()
 }
 

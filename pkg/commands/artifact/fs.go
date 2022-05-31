@@ -14,6 +14,6 @@ func FsRun(cmd *cobra.Command, args []string) error {
 
 	// Show DEMO information about command
 	log.Println("[FS] running Image subcommand")
-	log.Printf("[FS] options: %+v", options)
+	log.Printf("[FS] options: %#v", options)
 	return nil
 }
