@@ -5,6 +5,7 @@ import (
 	"github.com/afdesk/trivy-cli/pkg/commands/flags"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"log"
 	"strings"
 )
 
@@ -94,6 +95,20 @@ var rootCmd = &cobra.Command{
 	Short: "A simple and comprehensive vulnerability scanner for containers",
 	CompletionOptions: cobra.CompletionOptions{
 		DisableDefaultCmd: true,
+	},
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		config := viper.GetString(flags.FlagConfigFile)
+		if config != "" {
+			viper.SetConfigFile(config)
+			viper.SetConfigType("yaml")
+			if err := viper.ReadInConfig(); err != nil {
+				if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+					log.Printf("trivy config file %q not found", config)
+				} else {
+					log.Printf("trivy config file %q was found but another error was produced %v", config, err)
+				}
+			}
+		}
 	},
 }
 

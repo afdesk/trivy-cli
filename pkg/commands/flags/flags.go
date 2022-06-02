@@ -20,6 +20,7 @@ const (
 	FlagDebug              = "debug"
 	FlagQuiet              = "quiet"
 	FlagCacheDir           = "cache-dir"
+	FlagConfigFile         = "config"
 	FlagFormat             = "format"
 	FlagInput              = "input"
 	FlagTemplate           = "template"
@@ -92,10 +93,12 @@ func AddGlobalFlags(cmd *cobra.Command) *cobra.Command {
 	cmd.PersistentFlags().BoolP(FlagDebug, "d", false, "debug mode [$TRIVY_DEBUG]")
 	cmd.PersistentFlags().BoolP(FlagQuiet, "q", false, "suppress progress bar and log output (default: false) [$TRIVY_QUIET]")
 	cmd.PersistentFlags().String(FlagCacheDir, utils.DefaultCacheDir(), "cache directory [$TRIVY_CACHE_DIR]")
+	cmd.PersistentFlags().String(FlagConfigFile, "", "config file [$TRIVY_CONFIG]")
 
 	viper.BindPFlag(FlagDebug, cmd.PersistentFlags().Lookup(FlagDebug))
 	viper.BindPFlag(FlagQuiet, cmd.PersistentFlags().Lookup(FlagQuiet))
 	viper.BindPFlag(FlagCacheDir, cmd.PersistentFlags().Lookup(FlagCacheDir))
+	viper.BindPFlag(FlagConfigFile, cmd.PersistentFlags().Lookup(FlagConfigFile))
 	return cmd
 }
 
