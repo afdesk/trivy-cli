@@ -12,6 +12,7 @@ import (
 
 // GlobalOption holds the global options for trivy
 type GlobalOption struct {
+	Cmd    *cobra.Command
 	Logger *zap.SugaredLogger
 
 	AppVersion string
@@ -30,6 +31,7 @@ func NewGlobalOption(cmd *cobra.Command) (GlobalOption, error) {
 	}
 
 	return GlobalOption{
+		Cmd:    cmd,
 		Logger: logger,
 
 		AppVersion: cmd.Version,

@@ -28,7 +28,7 @@ func buildSubcommand(use string, aliases []string, short string,
 var imageCommand = buildSubcommand("image [flags] target", []string{"i"}, "scan an image", artifact.ImageRun)
 
 var fsCommand = buildSubcommand("filesystem [flags] path", []string{"fs"},
-	"scan local filesystem for language-specific dependencies and config files", artifact.FsRun)
+	"scan local filesystem for language-specific dependencies and config files", artifact.FilesystemRun)
 
 var rootfsCommand = buildSubcommand("rootfs [flags] dir", nil, "scan rootfs", artifact.RootfsRun)
 
