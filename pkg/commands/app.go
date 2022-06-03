@@ -219,5 +219,5 @@ func init() {
 		sbomCommand,
 		versionCommand,
 	)
-	defer rootCmd.SetVersionTemplate(getVersionTemplate())
+	rootCmd.SetVersionTemplate(getVersionTemplate())
 }
