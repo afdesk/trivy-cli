@@ -9,9 +9,9 @@ import (
 	"strings"
 )
 
-func buildCommand(use string, aliases []string, short string,
+func buildSubcommand(use string, aliases []string, short string,
 	runE func(cmd *cobra.Command, args []string) error) *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:     use,
 		Aliases: aliases,
 		Short:   short,
@@ -21,16 +21,18 @@ func buildCommand(use string, aliases []string, short string,
 		RunE:          runE,
 		SilenceErrors: true,
 	}
+	flags.SetNormalizeFlag(cmd)
+	return cmd
 }
 
-var imageCommand = buildCommand("image [flags] target", []string{"i"}, "scan an image", artifact.ImageRun)
+var imageCommand = buildSubcommand("image [flags] target", []string{"i"}, "scan an image", artifact.ImageRun)
 
-var fsCommand = buildCommand("filesystem [flags] path", []string{"fs"},
+var fsCommand = buildSubcommand("filesystem [flags] path", []string{"fs"},
 	"scan local filesystem for language-specific dependencies and config files", artifact.FsRun)
 
-var rootfsCommand = buildCommand("rootfs [flags] dir", nil, "scan rootfs", artifact.RootfsRun)
+var rootfsCommand = buildSubcommand("rootfs [flags] dir", nil, "scan rootfs", artifact.RootfsRun)
 
-var repoCommand = buildCommand("repository [flags] repo_url", []string{"repo"},
+var repoCommand = buildSubcommand("repository [flags] repo_url", []string{"repo"},
 	"scan remote repository", artifact.RepositoryRun)
 
 var serverCommand = &cobra.Command{
@@ -126,86 +128,33 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	// init flags for `image` subcommand
-	imageCommand.Flags().SetNormalizeFunc(flags.NormalizeFlags)
-
-	imageCommand = flags.AddTemplateFlag(imageCommand)
-	imageCommand = flags.AddFormatFlag(imageCommand)
-	imageCommand = flags.AddInputFlag(imageCommand)
-	imageCommand = flags.AddSeverityFlag(imageCommand)
-	imageCommand = flags.AddOutputFlag(imageCommand)
-	imageCommand = flags.AddExitCodeFlag(imageCommand)
-	imageCommand = flags.AddSkipDBUpdateFlag(imageCommand)
-	imageCommand = flags.AddDownloadDBOnlyFlag(imageCommand)
-	imageCommand = flags.AddResetFlag(imageCommand)
-	imageCommand = flags.AddClearCacheFlag(imageCommand)
-	imageCommand = flags.AddNoProgressFlag(imageCommand)
-	imageCommand = flags.AddIgnoreUnfixedFlag(imageCommand)
-	imageCommand = flags.AddRemovePkgsFlag(imageCommand)
-	imageCommand = flags.AddVulnTypeFlag(imageCommand)
-	imageCommand = flags.AddSecurityChecksFlag(imageCommand)
-	imageCommand = flags.AddIgnoreFileFlag(imageCommand)
-	imageCommand = flags.AddTimeoutFlag(imageCommand)
-	imageCommand = flags.AddLightFlag(imageCommand)
-	imageCommand = flags.AddIgnorePolicyFlag(imageCommand)
-	imageCommand = flags.AddListAllPkgsFlag(imageCommand)
-	imageCommand = flags.AddCacheBackendFlag(imageCommand)
-	imageCommand = flags.AddCacheTTLFlag(imageCommand)
-	imageCommand = flags.AddRedisCAFlag(imageCommand)
-	imageCommand = flags.AddRedisCertFlag(imageCommand)
-	imageCommand = flags.AddRedisKeyFlag(imageCommand)
-	imageCommand = flags.AddOfflineScanFlag(imageCommand)
-	imageCommand = flags.AddInsecureFlag(imageCommand)
-	imageCommand = flags.AddDBRepositoryFlag(imageCommand)
-	imageCommand = flags.AddSecretConfigFlag(imageCommand)
-	imageCommand = flags.AddSkipFilesFlag(imageCommand)
-	imageCommand = flags.AddSkipDirsFlag(imageCommand)
-
-	imageCommand = flags.AddClientServerFlags(imageCommand)
+	flags.AddImageFlags(imageCommand)
+	flags.AddArtifactFlags(imageCommand)
+	flags.AddReportFlags(imageCommand)
+	flags.AddRemoteFlags(imageCommand)
+	flags.AddCacheFlags(imageCommand)
+	flags.AddDBFlags(imageCommand)
+	flags.AddOtherFlags(imageCommand)
+	flags.AddSecretFlags(imageCommand)
 
 	// init flags for `filesystem` subcommand
-	fsCommand = flags.AddTemplateFlag(fsCommand)
-	fsCommand = flags.AddFormatFlag(fsCommand)
-	fsCommand = flags.AddSeverityFlag(fsCommand)
-	fsCommand = flags.AddOutputFlag(fsCommand)
-	fsCommand = flags.AddExitCodeFlag(fsCommand)
-	fsCommand = flags.AddSkipDBUpdateFlag(fsCommand)
-	fsCommand = flags.AddSkipPolicyUpdateFlag(fsCommand)
-	fsCommand = flags.AddInsecureFlag(fsCommand)
-	fsCommand = flags.AddClearCacheFlag(fsCommand)
-	fsCommand = flags.AddIgnoreUnfixedFlag(fsCommand)
-	fsCommand = flags.AddVulnTypeFlag(fsCommand)
-	fsCommand = flags.AddSecurityChecksFlag(fsCommand)
-	fsCommand = flags.AddIgnoreFileFlag(fsCommand)
-	fsCommand = flags.AddCacheBackendFlag(fsCommand)
-	fsCommand = flags.AddCacheTTLFlag(fsCommand)
-	fsCommand = flags.AddRedisCAFlag(fsCommand)
-	fsCommand = flags.AddRedisCertFlag(fsCommand)
-	fsCommand = flags.AddRedisKeyFlag(fsCommand)
-	fsCommand = flags.AddTimeoutFlag(fsCommand)
-	fsCommand = flags.AddNoProgressFlag(fsCommand)
-	fsCommand = flags.AddIgnorePolicyFlag(fsCommand)
-	fsCommand = flags.AddListAllPkgsFlag(fsCommand)
-	fsCommand = flags.AddOfflineScanFlag(fsCommand)
-	fsCommand = flags.AddDBRepositoryFlag(fsCommand)
-	fsCommand = flags.AddSecretConfigFlag(fsCommand)
-	fsCommand = flags.AddSkipFilesFlag(fsCommand)
-	fsCommand = flags.AddSkipDirsFlag(fsCommand)
-
+	flags.AddReportFlags(fsCommand)
+	flags.AddArtifactFlags(fsCommand)
+	flags.AddRemoteFlags(fsCommand)
+	flags.AddCacheFlags(fsCommand)
+	flags.AddDBFlags(fsCommand)
+	flags.AddSecretFlags(fsCommand)
 	// for misconfiguration
-	fsCommand = flags.AddConfigPolicyFlag(fsCommand)
-	fsCommand = flags.AddConfigDataFlag(fsCommand)
-	fsCommand = flags.AddPolicyNamespacesFlag(fsCommand)
-
-	fsCommand = flags.AddClientServerFlags(fsCommand)
+	flags.AddConfigFlags(fsCommand)
 
 	// init flags for `rootfs` subcommand
-	rootfsCommand = flags.AddFormatFlag(rootfsCommand)
+	flags.AddReportFlags(rootfsCommand)
 
 	// init flags for version subcommand
-	versionCommand = flags.AddFormatFlag(versionCommand)
+	flags.AddFormatFlag(versionCommand)
 
 	// init rootCmd
-	rootCmd = flags.AddGlobalFlags(rootCmd)
+	flags.AddGlobalFlags(rootCmd)
 	rootCmd.AddCommand(
 		imageCommand,
 		fsCommand,
