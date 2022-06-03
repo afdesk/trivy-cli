@@ -96,20 +96,6 @@ var rootCmd = &cobra.Command{
 	CompletionOptions: cobra.CompletionOptions{
 		DisableDefaultCmd: true,
 	},
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		config := viper.GetString(flags.FlagConfigFile)
-		if config != "" {
-			viper.SetConfigFile(config)
-			viper.SetConfigType("yaml")
-			if err := viper.ReadInConfig(); err != nil {
-				if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-					log.Printf("trivy config file %q not found", config)
-				} else {
-					log.Printf("trivy config file %q was found but another error was produced %v", config, err)
-				}
-			}
-		}
-	},
 }
 
 func NewApp(version string) *cobra.Command {
@@ -117,7 +103,28 @@ func NewApp(version string) *cobra.Command {
 	return rootCmd
 }
 
+func initConfig() {
+	viper.SetEnvPrefix("trivy")
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	viper.AutomaticEnv()
+
+	config := viper.GetString(flags.FlagConfigFile)
+	if config != "" {
+		viper.SetConfigFile(config)
+		viper.SetConfigType("yaml")
+		if err := viper.ReadInConfig(); err != nil {
+			if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+				log.Printf("trivy config file %q not found", config)
+			} else {
+				log.Printf("trivy config file %q was found but another error was produced %v", config, err)
+			}
+		}
+	}
+}
+
 func init() {
+	cobra.OnInitialize(initConfig)
+
 	// init flags for `image` subcommand
 	imageCommand.Flags().SetNormalizeFunc(flags.NormalizeFlags)
 
@@ -213,8 +220,4 @@ func init() {
 		versionCommand,
 	)
 	defer rootCmd.SetVersionTemplate(getVersionTemplate())
-
-	viper.SetEnvPrefix("trivy")
-	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	viper.AutomaticEnv()
 }
