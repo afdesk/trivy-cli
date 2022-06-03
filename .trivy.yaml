@@ -1,0 +1,5 @@
+debug: true
+offline-scan: true
+skip-files:
+- f1
+- f2
