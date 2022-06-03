@@ -3,17 +3,17 @@ package flags
 import (
 	"fmt"
 	"github.com/afdesk/trivy-cli/pkg/commands/utils"
-	"github.com/aquasecurity/trivy/pkg/result"
-	"github.com/spf13/viper"
 	"strings"
 	"time"
 
 	dbTypes "github.com/aquasecurity/trivy-db/pkg/types"
-	remoteOption "github.com/aquasecurity/trivy/pkg/commands/option"
-	"github.com/aquasecurity/trivy/pkg/types"
+	//"github.com/aquasecurity/trivy/pkg/result"
+	//remoteOption "github.com/aquasecurity/trivy/pkg/commands/option"
+	//"github.com/aquasecurity/trivy/pkg/types"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -45,6 +45,7 @@ const (
 	FlagIgnoreFile         = "ignorefile"
 	FlagTimeout            = "timeout"
 	FlagNamespace          = "namespace"
+	FlagContext            = "context"
 	FlagReport             = "report"
 	FlagToken              = "token"
 	FlagTokenHeader        = "token-header"
@@ -68,7 +69,8 @@ const (
 	FlagArtifactType       = "artifact-type"
 
 	// deprecated flags
-	FlagLight = "light"
+	FlagLight  = "light"
+	FlagRemote = "remote"
 )
 
 func flagNameNormalize(f *pflag.FlagSet, name string) pflag.NormalizedName {
@@ -109,7 +111,13 @@ func AddRemoteFlags(cmd *cobra.Command) {
 	cmd.Flags().String(FlagServer, "", "server address")
 	cmd.Flags().StringArray(FlagCustomHeaders, []string{}, "custom headers in client/server mode")
 	cmd.Flags().String(FlagToken, "", "for authentication in client/server mode")
-	cmd.Flags().String(FlagTokenHeader, remoteOption.DefaultTokenHeader, "specify a header name for token in client/server mode")
+	//	cmd.Flags().String(FlagTokenHeader, remoteOption.DefaultTokenHeader, "specify a header name for token in client/server mode")
+	cmd.Flags().String(FlagTokenHeader, "Trivy-Header", "specify a header name for token in client/server mode")
+
+	// TODO: remove this flag after a sufficient deprecation period.
+	cmd.Flags().String(FlagRemote, "", "deprecated")
+	cmd.Flags().MarkDeprecated(FlagRemote, "you shouldn't use this flag")
+	cmd.Flags().Lookup(FlagRemote).Hidden = true
 }
 
 func AddFormatFlag(cmd *cobra.Command) {
@@ -120,14 +128,24 @@ func AddReportFlags(cmd *cobra.Command) {
 	AddFormatFlag(cmd)
 	cmd.Flags().StringP(FlagTemplate, "t", "", "output template")
 
-	cmd.Flags().String(FlagIgnoreFile, result.DefaultIgnoreFile, "specify .trivyignore file")
+	// ToDo!!!!!
+	//cmd.Flags().String(FlagIgnoreFile, result.DefaultIgnoreFile, "specify .trivyignore file")
+	cmd.Flags().String(FlagIgnoreFile, ".trivyignore", "specify .trivyignore file")
 	cmd.Flags().Bool(FlagIgnoreUnfixed, false, "display only fixed vulnerabilities")
 	cmd.Flags().String(FlagIgnorePolicy, "", "specify the Rego file to evaluate each vulnerability")
 	cmd.Flags().Int(FlagExitCode, 0, "Exit code when vulnerabilities were found")
 
-	cmd.Flags().StringP(FlagVulnType, "", strings.Join([]string{types.VulnTypeOS, types.VulnTypeLibrary}, ","), "comma-separated list of vulnerability types (os,library)")
-	cmd.Flags().String(FlagSecurityChecks,
-		fmt.Sprintf("%s,%s", types.SecurityCheckVulnerability, types.SecurityCheckSecret),
+	// ToDo: in Trivy we should use the constants
+	//	cmd.Flags().StringP(FlagVulnType, "", strings.Join([]string{types.VulnTypeOS, types.VulnTypeLibrary}, ","), "comma-separated list of vulnerability types (os,library)")
+	//	cmd.Flags().String(FlagSecurityChecks, fmt.Sprintf("%s,%s", types.SecurityCheckVulnerability, types.SecurityCheckSecret),
+	var (
+		os      = "os"
+		library = "library"
+		vuln    = "vuln"
+		secret  = "secret"
+	)
+	cmd.Flags().StringP(FlagVulnType, "", strings.Join([]string{os, library}, ","), "comma-separated list of vulnerability types (os,library)")
+	cmd.Flags().String(FlagSecurityChecks, fmt.Sprintf("%s,%s", vuln, secret),
 		"comma-separated list of what security issues to detect (vuln,config,secret)")
 	cmd.Flags().StringP(FlagOutput, "o", "", "output file name")
 	cmd.Flags().StringP(FlagSeverity, "s", strings.Join(dbTypes.SeverityNames, ","), "severities of vulnerabilities to be displayed (comma separated)")
@@ -180,7 +198,7 @@ func AddDBFlags(cmd *cobra.Command) {
 	cmd.Flags().String(FlagDBRepository, "ghcr.io/aquasecurity/trivy-db",
 		"OCI repository to retrieve trivy-db from")
 
-	// TODO: remove this func after a sufficient deprecation period.
+	// TODO: remove this flag after a sufficient deprecation period.
 	cmd.Flags().String(FlagLight, "", "deprecated")
 	cmd.Flags().MarkDeprecated(FlagLight, "you shouldn't use this flag")
 	cmd.Flags().Lookup(FlagLight).Hidden = true

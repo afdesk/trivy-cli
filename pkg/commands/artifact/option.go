@@ -19,7 +19,7 @@ func NewOption(c *cobra.Command) (Option, error) {
 		return Option{}, xerrors.Errorf("failed to initialize global options: %w", err)
 	}
 
-	artifactOption, err := option.NewArtifactOption(c)
+	artifactOption := option.NewArtifactOption()
 	if err != nil {
 		return Option{}, xerrors.Errorf("failed to initialize artifact options: %w", err)
 	}

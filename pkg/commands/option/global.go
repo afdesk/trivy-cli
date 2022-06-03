@@ -4,10 +4,16 @@ import (
 	"github.com/afdesk/trivy-cli/pkg/commands/flags"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
+	"golang.org/x/xerrors"
+
+	"github.com/aquasecurity/trivy/pkg/log"
 )
 
 // GlobalOption holds the global options for trivy
 type GlobalOption struct {
+	Logger *zap.SugaredLogger
+
 	AppVersion string
 	Quiet      bool
 	Debug      bool
@@ -16,14 +22,19 @@ type GlobalOption struct {
 
 // NewGlobalOption is the factory method to return GlobalOption
 func NewGlobalOption(cmd *cobra.Command) (GlobalOption, error) {
-	debug := viper.GetBool(flags.FlagDebug)
 	quiet := viper.GetBool(flags.FlagQuiet)
-	cacheDir := viper.GetString(flags.FlagCacheDir)
+	debug := viper.GetBool(flags.FlagDebug)
+	logger, err := log.NewLogger(debug, quiet)
+	if err != nil {
+		return GlobalOption{}, xerrors.New("failed to create a logger")
+	}
 
 	return GlobalOption{
+		Logger: logger,
+
 		AppVersion: cmd.Version,
 		Quiet:      quiet,
 		Debug:      debug,
-		CacheDir:   cacheDir,
+		CacheDir:   viper.GetString(flags.FlagCacheDir),
 	}, nil
 }
